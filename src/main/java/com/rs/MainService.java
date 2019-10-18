@@ -16,7 +16,9 @@ import static com.rs.utils.Worker.*;
 public class MainService {
 
     public static void main(String[] args) {
-        run(args);
+//        loadProps(args[0]);
+//        split("http://www.gutenberg.org/files/2600/2600-0.txt");
+          run(args);
     }
 
     private static void run(String[] args){

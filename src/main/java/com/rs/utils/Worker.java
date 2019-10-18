@@ -5,8 +5,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 
 import static com.rs.utils.Configs.*;
@@ -85,7 +83,93 @@ public class Worker {
         return split(url, MAX_SIZE_EACH_TASK());
     }
 
-    public static Map<String, Long> rangeRead(String path, long start, long end){
+    public static Map<String, Long> smallFileRead(int index){
+        Map<String, Long> result = new HashMap<String, Long>();
+        BufferedReader reader;
+        try {
+            String fileName = SMALL_FILE_NAME_PREFIX + index + ".txt";
+            reader = new BufferedReader(new FileReader(fileName));
+            String line = reader.readLine();
+            while (line != null) {
+                List<String> words = getWords(line);
+
+                for(String word : words){
+                    String key = word.toLowerCase();
+                    if(!result.containsKey(key)){
+                        result.put(key, (long)0);
+                    }
+                    result.put(key, result.get(key) + 1);
+                }
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    private static synchronized byte[] getInputStream(String path, long start, long end){
+        try {
+            URL url = new URL(path);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestProperty("Range", "bytes="+start+"-"+end);
+            urlConnection.connect();
+
+            int responseCode = urlConnection.getResponseCode();
+            System.out.println("start: " + start + " end: " + end);
+            System.out.println("Respnse Code: " + responseCode);
+            int size = urlConnection.getContentLength();
+            System.out.println("Content-Length: " + size);
+            byte[] targetArray = new byte[size];
+            //The HTTP 206 Partial Content success status response code indicates that the request has succeeded
+            // and has the body contains the requested ranges of data
+            if (responseCode == HttpURLConnection.HTTP_PARTIAL) {
+                urlConnection.getInputStream().read(targetArray);
+            }else {
+                System.out.println("No file to download. Server replied HTTP code: " + responseCode);
+            }
+            urlConnection.disconnect();
+            return  targetArray;
+
+        }catch(MalformedURLException mue) {
+            mue.printStackTrace();
+        }catch(IOException ioe) {
+            ioe.printStackTrace();
+        }
+        return  new byte[0];
+    }
+
+    public static synchronized Map<String, Long> readFromByte(String path, long start, long end){
+        Map<String, Long> result = new HashMap<String, Long>();
+        try {
+            InputStream inputStream = new ByteArrayInputStream(getInputStream(path, start, end));;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            while (reader.ready()) {
+                String line = reader.readLine();
+                List<String> words = getWords(line);
+
+                for(String word : words){
+                    String key = word.toLowerCase();
+                    if(!result.containsKey(key)){
+                        result.put(key, (long)0);
+                    }
+                    result.put(key, result.get(key) + 1);
+                }
+            }
+            inputStream.close();
+            reader.close();
+        }catch(MalformedURLException mue) {
+            mue.printStackTrace();
+        }catch(IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+
+        return result;
+    }
+
+    public static synchronized Map<String, Long> rangeRead(String path, long start, long end){
         Map<String, Long> result = new HashMap<String, Long>();
         try {
             URL url = new URL(path);
@@ -101,7 +185,7 @@ public class Worker {
             //The HTTP 206 Partial Content success status response code indicates that the request has succeeded
             // and has the body contains the requested ranges of data
             if (responseCode == HttpURLConnection.HTTP_PARTIAL) {
-                InputStream inputStream = urlConnection.getInputStream();
+                InputStream inputStream = urlConnection.getInputStream();;
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                 while (reader.ready()) {
                     String line = reader.readLine();

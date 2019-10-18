@@ -4,6 +4,8 @@ import java.util.*;
 
 import static com.rs.utils.Configs.*;
 import static com.rs.utils.Utils.*;
+import static com.rs.utils.Worker.rangeRead;
+import static com.rs.utils.Worker.readFromByte;
 
 public class Executor extends Thread {
     int index = 0;
@@ -32,8 +34,9 @@ public class Executor extends Thread {
                 if(start > MAX)
                     break;
                 System.out.println("Thread Index: " + index + " read from start: " + start + " to end: " + end);
-                temp = Worker.rangeRead(url, start, end);
-
+//                temp = rangeRead(url, start, end);
+                temp = readFromByte(url, start, end);
+//                temp = Worker.smallFileRead(taskSize * i + index);
                 for(String key : temp.keySet()){
                     if(!result.containsKey(key)){
                         result.put(key,(long)0);
