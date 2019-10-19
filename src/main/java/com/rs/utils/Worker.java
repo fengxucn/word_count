@@ -29,7 +29,6 @@ public class Worker {
     //iterate through all the lines in the file
     // allowing for processing of each line without keeping references to them, so can used for big size(TB level) file
     public static int split(String path, long max_size) {
-        dirInit(SMALL_FILES);
 
         FileInputStream inputStream = null;
         Scanner sc = null;
@@ -38,7 +37,7 @@ public class Worker {
             URL url = new URL(path);
             sc = new Scanner(url.openStream(), "UTF-8");
             long tmp_total = 0;
-            String fileName = SMALL_FILE_NAME_PREFIX + sum + ".txt";
+            String fileName =  sum + ".txt";
             BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
             while (sc.hasNextLine()) {
                 String line = sc.nextLine();
@@ -49,7 +48,7 @@ public class Worker {
                     sum++;
                     tmp_total = 0;
                     writer.close();
-                    fileName = SMALL_FILE_NAME_PREFIX + sum + ".txt";
+                    fileName =  sum + ".txt";
                     writer = new BufferedWriter(new FileWriter(fileName));
                 }
             }
@@ -86,7 +85,7 @@ public class Worker {
         Map<String, Long> result = new HashMap<String, Long>();
         BufferedReader reader;
         try {
-            String fileName = SMALL_FILE_NAME_PREFIX + index + ".txt";
+            String fileName =  index + ".txt";
             reader = new BufferedReader(new FileReader(fileName));
             String line = reader.readLine();
             while (line != null) {
@@ -152,10 +151,7 @@ public class Worker {
 
                 for (String word : words) {
                     String key = word.toLowerCase();
-                    if (!result.containsKey(key)) {
-                        result.put(key, (long) 0);
-                    }
-                    result.put(key, result.get(key) + 1);
+                    result.put(key, result.getOrDefault(key, (long)0) + 1);
                 }
             }
             inputStream.close();
@@ -171,7 +167,7 @@ public class Worker {
     }
 
     public static synchronized Map<String, Long> rangeRead(String path, long start, long end) {
-        Map<String, Long> result = new HashMap<String, Long>();
+        Map<String, Long> result = new HashMap<>();
         try {
             URL url = new URL(path);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -195,10 +191,7 @@ public class Worker {
 
                     for (String word : words) {
                         String key = word.toLowerCase();
-                        if (!result.containsKey(key)) {
-                            result.put(key, (long) 0);
-                        }
-                        result.put(key, result.get(key) + 1);
+                        result.put(key, result.getOrDefault(key, (long)0) + 1);
                     }
                 }
                 inputStream.close();

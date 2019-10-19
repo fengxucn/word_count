@@ -1,10 +1,13 @@
 package com.rs.utils;
 
+import com.rs.memory.DataPool;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,7 +19,7 @@ import static com.rs.utils.Worker.download;
 public class Utils {
 
     public static List<Map.Entry<String, Long>> sort(Map<String, Long> map) {
-        List<Map.Entry<String, Long>> list = new LinkedList<Map.Entry<String, Long>>(map.entrySet());
+        List<Map.Entry<String, Long>> list = new LinkedList<>(map.entrySet());
 
         // Sort the list
         Collections.sort(list, new Comparator<Map.Entry<String, Long>>() {
@@ -43,36 +46,27 @@ public class Utils {
     }
 
     public static void init() {
-        dirInit(MAP_RESULT);
         dirInit(FINAL_RESULT);
     }
 
     public static Map<String, Long> reduce() {
-        File folder = new File(MAP_RESULT);
-        String[] files = folder.list();
-        Map<String, Long> count = new HashMap<String, Long>();
-        for (String file : files) {
-            BufferedReader reader;
+        int executors = getExecutorNumber();
+        while (!allDone(executors)) {
             try {
-                String fileName = MAP_RESULT + file;
-                reader = new BufferedReader(new FileReader(fileName));
-                String line = reader.readLine();
-                while (line != null) {
-                    String[] kv = line.split(",");
-                    String key = kv[0];
-                    Long value = Long.parseLong(kv[1]);
-                    if (!count.containsKey(key)) {
-                        count.put(key, (long) 0);
-                    }
-                    count.put(key, count.get(key) + value);
-                    line = reader.readLine();
-                }
-                reader.close();
-            } catch (IOException e) {
+                Thread.sleep(new Random().nextInt(100));
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
 
+        Map<String, Long> count = new HashMap<>();
+        for (List<Map.Entry<String, Long>> list : map_result) {
+            for (Map.Entry<String, Long> kv : list) {
+                String key = kv.getKey();
+                Long value = kv.getValue();
+                count.put(key, count.getOrDefault(key, (long) 0) + value);
+            }
+        }
         return count;
     }
 
@@ -103,56 +97,30 @@ public class Utils {
     }
 
 
-    public static void map(String path) {
-        // Number of executors
-        int size = getTotalSize(path);
-        int size_each_executor = MAX_SIZE_EACH_TASK();
+    public static void map() {
+        DataPool pool = new DataPool();
 
-        int total_tasks = size / size_each_executor + 1;
-        int executors = Math.min(getExecutorNumber(), total_tasks);
+        Producer producer = new Producer(getUrls(), pool);
+        System.out.println("Start Producer: " + producer.getName());
+        producer.start();
 
-        int step = executors * size_each_executor;
+        int executors = getExecutorNumber();
 
-        long begin = 0;
-        do {
-            long end = begin + step;
-            byte[] all_data = download(path, begin, end-1);
-            int m = 0;
-            start();
-
-            for (int i = 0; ; i++) {
-                int start = i * size_each_executor;
-                if (start > all_data.length)
-                    break;
-                byte[] data = Arrays.copyOfRange(all_data, start, (start + size_each_executor));
-                Executor object = new Executor(i, data);
-                object.start();
-                m++;
-            }
-
-            while (!allDone(m)) {
-                try {
-                    Thread.sleep(new Random().nextInt(100));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            begin = end;
-        } while (begin <= size);
+        for (int i = 0; i < executors; i++) {
+            Consumer consumer = new Consumer(pool);
+            System.out.println("Start Consumer: " + consumer.getName());
+            consumer.start();
+        }
     }
 
-    private static AtomicInteger finished_number = new AtomicInteger(0);
+    private static CopyOnWriteArrayList<List<Map.Entry<String, Long>>> map_result = new CopyOnWriteArrayList<>();
 
-    public static void done() {
-        finished_number.getAndIncrement();
+    public static void done(List<Map.Entry<String, Long>> result) {
+        map_result.add(result);
     }
 
     public static boolean allDone(int n) {
-        return finished_number.get() == n;
-    }
-
-    public static void start() {
-        finished_number = new AtomicInteger(0);;
+        return map_result.size() == n;
     }
 
     public static List<String> getWords(String line) {

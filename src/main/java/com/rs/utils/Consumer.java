@@ -2,11 +2,9 @@ package com.rs.utils;
 
 import com.rs.memory.DataPool;
 
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
-import static com.rs.utils.Configs.MAP_RESULT;
+import static com.rs.utils.Configs.FINAL_RESULT;
 import static com.rs.utils.Utils.*;
 import static com.rs.utils.Worker.count;
 
@@ -19,6 +17,7 @@ public class Consumer extends Thread {
     }
 
     public void run() {
+        Map<String, Long> result = new HashMap<>();
         while (true) {
             byte[] data;
             synchronized (pool) {
@@ -35,14 +34,20 @@ public class Consumer extends Thread {
                 data = pool.read();
                 pool.notifyAll();
             }
-            Map<String, Long> result = count(data);
+            Map<String, Long> tmp = count(data);
 
-            String fileName = MAP_RESULT + Thread.currentThread().getName() + "_" + UUID.randomUUID() + ".txt";
-
-            save(sort(result), fileName);
+            for(String key : tmp.keySet()){
+                result.put(key, result.getOrDefault(key, (long)0) + tmp.get(key));
+            }
         }
 
-        done();
+        String fileName = FINAL_RESULT + Thread.currentThread().getName() + ".txt";
+
+        List<Map.Entry<String, Long>> sorted_result = sort(result);
+
+        save(sorted_result, fileName);
+
+        done(sorted_result);
 
         System.out.println("Thread: " + Thread.currentThread().getName() +" Done!");
     }
