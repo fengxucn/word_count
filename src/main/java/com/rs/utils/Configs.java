@@ -8,8 +8,8 @@ import java.io.InputStream;
 import java.util.*;
 
 public class Configs {
-    public static final String SMALL_FILES = "./small_file";
-    public static final String SMALL_FILE_NAME_PREFIX = SMALL_FILES + "/tmp_";
+    public static final String SMALL_FILES = "./small_file/";
+    public static final String SMALL_FILE_NAME_PREFIX = SMALL_FILES + "tmp_";
     public static final String MAP_RESULT = "./map/";
     public static final String FINAL_RESULT = "./result/";
 
@@ -28,7 +28,7 @@ public class Configs {
         }
     }
 
-    public static long MAX_SIZE_EACH_TASK(){
+    public static int MAX_SIZE_EACH_TASK(){
         String size = prop.getProperty("max_size_each_task", "64k");
         int value = Integer.parseInt(size.substring(0, size.length()-1));
         if(size.endsWith("k") || size.endsWith("K")){

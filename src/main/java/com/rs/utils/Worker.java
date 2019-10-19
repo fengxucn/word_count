@@ -5,15 +5,15 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import static com.rs.utils.Configs.*;
 import static com.rs.utils.Utils.getWords;
 
 public class Worker {
-    public static void dirInit(String dir){
+    public static void dirInit(String dir) {
 
         try {
             File directory = new File(dir);
@@ -21,15 +21,14 @@ public class Worker {
                 FileUtils.deleteDirectory(new File(dir));
             }
             directory.mkdir();
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             //TODO
         }
     }
 
     //iterate through all the lines in the file
     // allowing for processing of each line without keeping references to them, so can used for big size(TB level) file
-    public static int split(String path, long max_size){
+    public static int split(String path, long max_size) {
         dirInit(SMALL_FILES);
 
         FileInputStream inputStream = null;
@@ -46,7 +45,7 @@ public class Worker {
                 tmp_total += line.length();
                 writer.write(line);
                 writer.newLine();
-                if(tmp_total >= max_size) {
+                if (tmp_total >= max_size) {
                     sum++;
                     tmp_total = 0;
                     writer.close();
@@ -58,14 +57,12 @@ public class Worker {
             if (sc.ioException() != null) {
                 throw sc.ioException();
             }
-        }
-        catch(IOException ex) {
+        } catch (IOException ex) {
             /*
             TODO exception process
              */
             ex.printStackTrace();
-        }
-        finally {
+        } finally {
             if (inputStream != null) {
                 try {
                     inputStream.close();
@@ -81,16 +78,104 @@ public class Worker {
         return sum;
     }
 
-    public static int split(String url){
+    public static int split(String url) {
         return split(url, MAX_SIZE_EACH_TASK());
     }
 
-    public static Map<String, Long> rangeRead(String path, long start, long end){
+    public static Map<String, Long> smallFileRead(int index) {
+        Map<String, Long> result = new HashMap<String, Long>();
+        BufferedReader reader;
+        try {
+            String fileName = SMALL_FILE_NAME_PREFIX + index + ".txt";
+            reader = new BufferedReader(new FileReader(fileName));
+            String line = reader.readLine();
+            while (line != null) {
+                List<String> words = getWords(line);
+
+                for (String word : words) {
+                    String key = word.toLowerCase();
+                    if (!result.containsKey(key)) {
+                        result.put(key, (long) 0);
+                    }
+                    result.put(key, result.get(key) + 1);
+                }
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static byte[] getInputStream(String path, long start, long end) {
+        try {
+            URL url = new URL(path);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestProperty("Range", "bytes=" + start + "-" + end);
+            urlConnection.connect();
+
+            int responseCode = urlConnection.getResponseCode();
+            System.out.println("start: " + start + " end: " + end);
+            System.out.println("Respnse Code: " + responseCode);
+            int size = urlConnection.getContentLength();
+            System.out.println("Content-Length: " + size);
+            byte[] stream = new byte[0];
+            //The HTTP 206 Partial Content success status response code indicates that the request has succeeded
+            // and has the body contains the requested ranges of data
+            if (responseCode == HttpURLConnection.HTTP_PARTIAL) {
+                stream = IOUtils.toByteArray(urlConnection);
+            } else {
+                System.out.println("No file to download. Server replied HTTP code: " + responseCode);
+            }
+            urlConnection.disconnect();
+            return stream;
+
+        } catch (MalformedURLException mue) {
+            mue.printStackTrace();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+        return new byte[0];
+    }
+
+    public static Map<String, Long> count(byte[] stream) {
+        Map<String, Long> result = new HashMap<String, Long>();
+
+        try {
+            InputStream inputStream = new ByteArrayInputStream(stream);
+            ;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            while (reader.ready()) {
+                String line = reader.readLine();
+                List<String> words = getWords(line);
+
+                for (String word : words) {
+                    String key = word.toLowerCase();
+                    if (!result.containsKey(key)) {
+                        result.put(key, (long) 0);
+                    }
+                    result.put(key, result.get(key) + 1);
+                }
+            }
+            inputStream.close();
+            reader.close();
+        } catch (MalformedURLException mue) {
+            mue.printStackTrace();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+
+        return result;
+    }
+
+    public static synchronized Map<String, Long> rangeRead(String path, long start, long end) {
         Map<String, Long> result = new HashMap<String, Long>();
         try {
             URL url = new URL(path);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestProperty("Range", "bytes="+start+"-"+end);
+            urlConnection.setRequestProperty("Range", "bytes=" + start + "-" + end);
             urlConnection.connect();
 
             int responseCode = urlConnection.getResponseCode();
@@ -102,31 +187,32 @@ public class Worker {
             // and has the body contains the requested ranges of data
             if (responseCode == HttpURLConnection.HTTP_PARTIAL) {
                 InputStream inputStream = urlConnection.getInputStream();
+                ;
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                 while (reader.ready()) {
                     String line = reader.readLine();
                     List<String> words = getWords(line);
 
-                    for(String word : words){
+                    for (String word : words) {
                         String key = word.toLowerCase();
-                        if(!result.containsKey(key)){
-                            result.put(key, (long)0);
+                        if (!result.containsKey(key)) {
+                            result.put(key, (long) 0);
                         }
                         result.put(key, result.get(key) + 1);
                     }
                 }
                 inputStream.close();
                 reader.close();
-            }else {
+            } else {
                 System.out.println("No file to download. Server replied HTTP code: " + responseCode);
                 return result;
             }
 
             urlConnection.disconnect();
 
-        }catch(MalformedURLException mue) {
+        } catch (MalformedURLException mue) {
             mue.printStackTrace();
-        }catch(IOException ioe) {
+        } catch (IOException ioe) {
             ioe.printStackTrace();
         }
 
@@ -136,7 +222,7 @@ public class Worker {
 
     public static void main(String[] args) {
 
-        Map<String, Long> res = rangeRead("http://www.gutenberg.org/files/2600/2600-0.txt", 2048, 64*1024);
+        Map<String, Long> res = rangeRead("http://www.gutenberg.org/files/2600/2600-0.txt", 2048, 64 * 1024);
 
         System.out.println(res);
     }
