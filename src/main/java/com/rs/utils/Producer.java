@@ -2,6 +2,7 @@ package com.rs.utils;
 
 import com.rs.memory.Cell;
 import com.rs.memory.DataPool;
+import org.apache.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +16,8 @@ import static com.rs.utils.Utils.*;
 import static com.rs.utils.Worker.download;
 
 public class Producer extends Thread {
+    static Logger logger = Logger.getLogger(Producer.class);
+
     Set<String> urls;
     DataPool pool;
     public static AtomicBoolean done = new AtomicBoolean(false);

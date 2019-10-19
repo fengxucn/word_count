@@ -1,6 +1,7 @@
 package com.rs.utils;
 
 import com.rs.memory.DataPool;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -15,6 +16,7 @@ import static com.rs.utils.Configs.*;
 import static com.rs.utils.Worker.dirInit;
 
 public class Utils {
+    static Logger logger = Logger.getLogger(Utils.class);
 
     public static List<Map.Entry<String, Long>> sort(Map<String, Long> map) {
         List<Map.Entry<String, Long>> list = new LinkedList<>(map.entrySet());
@@ -92,9 +94,9 @@ public class Utils {
             urlConnection.connect();
 
             int responseCode = urlConnection.getResponseCode();
-            System.out.println("Respnse Code: " + responseCode);
+            logger.info("Respnse Code: " + responseCode);
             size = urlConnection.getContentLength();
-            System.out.println("Content-Length: " + size);
+            logger.info("Content-Length: " + size);
 
             if (responseCode != HttpURLConnection.HTTP_PARTIAL) {
                 System.out.println("No file to download. Server replied HTTP code: " + responseCode);
@@ -103,8 +105,10 @@ public class Utils {
             urlConnection.disconnect();
         } catch (MalformedURLException mue) {
             mue.printStackTrace();
+            logger.error(mue);
         } catch (IOException ioe) {
             ioe.printStackTrace();
+            logger.error(ioe);
         }
         return size;
     }
@@ -114,14 +118,14 @@ public class Utils {
         DataPool pool = new DataPool();
 
         Producer producer = new Producer(getUrls(), pool);
-        System.out.println("Start Producer: " + producer.getName());
+        logger.info("Start Producer: " + producer.getName());
         producer.start();
 
         int executors = getExecutorNumber();
 
         for (int i = 0; i < executors; i++) {
             Consumer consumer = new Consumer(pool);
-            System.out.println("Start Consumer: " + consumer.getName());
+            logger.info("Start Consumer: " + consumer.getName());
             consumer.start();
         }
     }

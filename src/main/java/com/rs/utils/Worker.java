@@ -9,10 +9,11 @@ import java.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-import static com.rs.utils.Configs.*;
+import org.apache.log4j.Logger;
 import static com.rs.utils.Utils.getWords;
 
 public class Worker {
+    static Logger logger = Logger.getLogger(Worker.class);
     public static void dirInit(String dir) {
         try {
             File directory = new File(dir);
@@ -33,17 +34,17 @@ public class Worker {
             urlConnection.connect();
 
             int responseCode = urlConnection.getResponseCode();
-            System.out.println("start: " + start + " end: " + end);
-            System.out.println("Respnse Code: " + responseCode);
+            logger.info("start: " + start + " end: " + end);
+            logger.info("Respnse Code: " + responseCode);
             int size = urlConnection.getContentLength();
-            System.out.println("Content-Length: " + size);
+            logger.info("Content-Length: " + size);
             byte[] stream = new byte[0];
             //The HTTP 206 Partial Content success status response code indicates that the request has succeeded
             // and has the body contains the requested ranges of data
             if (responseCode == HttpURLConnection.HTTP_PARTIAL) {
                 stream = IOUtils.toByteArray(urlConnection);
             } else {
-                System.out.println("No file to download. Server replied HTTP code: " + responseCode);
+                logger.info("No file to download. Server replied HTTP code: " + responseCode);
             }
             urlConnection.disconnect();
             return stream;

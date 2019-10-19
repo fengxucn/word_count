@@ -1,6 +1,7 @@
 package com.rs.utils;
 
 import com.rs.memory.DataPool;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 
@@ -9,7 +10,7 @@ import static com.rs.utils.Utils.*;
 import static com.rs.utils.Worker.count;
 
 public class Consumer extends Thread {
-
+    static Logger logger = Logger.getLogger(Consumer.class);
     DataPool pool;
 
     public Consumer(DataPool pool) {
@@ -49,7 +50,7 @@ public class Consumer extends Thread {
 
         done(sorted_result);
 
-        System.out.println("Thread: " + Thread.currentThread().getName() +" Done!");
+        logger.info("Thread: " + Thread.currentThread().getName() +" Done!");
     }
 
 }
