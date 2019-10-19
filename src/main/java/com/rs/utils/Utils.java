@@ -1,7 +1,5 @@
 package com.rs.utils;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -13,7 +11,7 @@ import java.util.regex.Pattern;
 
 import static com.rs.utils.Configs.*;
 import static com.rs.utils.Worker.dirInit;
-import static com.rs.utils.Worker.getInputStream;
+import static com.rs.utils.Worker.download;
 
 public class Utils {
 
@@ -39,6 +37,7 @@ public class Utils {
             }
             writer.close();
         } catch (IOException e) {
+            e.printStackTrace();
             //TODO
         }
     }
@@ -77,7 +76,7 @@ public class Utils {
         return count;
     }
 
-    private static int getTotalSize(String path) {
+    public static int getTotalSize(String path) {
         int size = 0;
         try {
             URL url = new URL(path);
@@ -117,7 +116,7 @@ public class Utils {
         long begin = 0;
         do {
             long end = begin + step;
-            byte[] all_data = getInputStream(path, begin, end-1);
+            byte[] all_data = download(path, begin, end-1);
             int m = 0;
             start();
 

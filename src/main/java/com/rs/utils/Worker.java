@@ -108,7 +108,7 @@ public class Worker {
         return result;
     }
 
-    public static byte[] getInputStream(String path, long start, long end) {
+    public static byte[] download(String path, long start, long end) {
         try {
             URL url = new URL(path);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
