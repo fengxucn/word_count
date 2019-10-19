@@ -41,7 +41,7 @@ public class Consumer extends Thread {
             }
         }
 
-        String fileName = FINAL_RESULT + Thread.currentThread().getName() + ".txt";
+        String fileName = FINAL_RESULT + "Part Result for: " + Thread.currentThread().getName() + ".txt";
 
         List<Map.Entry<String, Long>> sorted_result = sort(result);
 

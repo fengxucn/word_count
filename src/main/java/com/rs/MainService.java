@@ -17,7 +17,5 @@ public class MainService {
         List<Map.Entry<String, Long>> result = sort(reduce());
 
         save(result, FINAL_RESULT + "word_count_all.txt");
-
-        save(result.subList(0, getTopN()), FINAL_RESULT + "word_count_top" + getTopN() + ".txt");
     }
 }
