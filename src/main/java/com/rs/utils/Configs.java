@@ -1,7 +1,5 @@
 package com.rs.utils;
 
-import sun.jvm.hotspot.types.WrongTypeException;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,12 +34,13 @@ public class Configs {
         }
         else if(size.endsWith("g") || size.endsWith("G")){
             return value * 1024 * 1024 * 1024;
+        }else{
+            return value * 1024;
         }
-        throw new WrongTypeException("the size should end with k K m M or g G");
     }
 
     public static Set<String> getStopWords(){
-        Set<String> sws = new HashSet<String>();
+        Set<String> sws = new HashSet<>();
         for(String word : prop.getProperty("stop_words").split(",")){
             sws.add(word.trim());
         }
@@ -53,7 +52,7 @@ public class Configs {
     }
 
     public static Set<String> getUrls(){
-        return new HashSet<String>(Arrays.asList(prop.getProperty("urls").split(",")));
+        return new HashSet<>(Arrays.asList(prop.getProperty("urls").split(",")));
     }
 
     public static int getTopN(){
@@ -61,6 +60,6 @@ public class Configs {
     }
 
     public static int getExecutorNumber(){
-        return Integer.parseInt(prop.getProperty("executor_number", "5"));
+        return Math.min(Integer.parseInt(prop.getProperty("executor_number", "5")), 10);
     }
 }

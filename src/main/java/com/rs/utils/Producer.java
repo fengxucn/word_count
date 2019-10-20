@@ -54,5 +54,6 @@ public class Producer extends Thread {
         }
 
         done.set(true);
+        logger.info("Thread: " + Thread.currentThread().getName() +" Done!");
     }
 }

@@ -20,8 +20,6 @@ public class Utils {
 
     public static List<Map.Entry<String, Long>> sort(Map<String, Long> map) {
         List<Map.Entry<String, Long>> list = new LinkedList<>(map.entrySet());
-
-        // Sort the list
         Collections.sort(list, (a,b) -> b.getValue().compareTo(a.getValue()));
         return list;
     }
@@ -41,7 +39,7 @@ public class Utils {
             writer.write( "-----------Top " + topN + " words-----------");
             writer.newLine();
             int index = 0;
-            for (;index<topN;index++) {
+            for (;index<topN && index<data.size();index++) {
                 Map.Entry<String, Long> kv = data.get(index);
                 writer.write(kv.getKey() + "," + kv.getValue());
                 writer.newLine();
@@ -56,7 +54,7 @@ public class Utils {
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
-            //TODO
+            logger.error(e);
         }
     }
 
@@ -99,7 +97,7 @@ public class Utils {
             logger.info("Content-Length: " + size);
 
             if (responseCode != HttpURLConnection.HTTP_PARTIAL) {
-                System.out.println("No file to download. Server replied HTTP code: " + responseCode);
+                logger.error("No file to download. Server replied HTTP code: " + responseCode);
                 size = 0;
             }
             urlConnection.disconnect();

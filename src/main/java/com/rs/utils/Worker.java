@@ -22,7 +22,7 @@ public class Worker {
             }
             directory.mkdir();
         } catch (IOException e) {
-            //TODO
+            logger.error(e);
         }
     }
 
@@ -44,26 +44,23 @@ public class Worker {
             if (responseCode == HttpURLConnection.HTTP_PARTIAL) {
                 stream = IOUtils.toByteArray(urlConnection);
             } else {
-                logger.info("No file to download. Server replied HTTP code: " + responseCode);
+                logger.error("No file to download. Server replied HTTP code: " + responseCode);
             }
             urlConnection.disconnect();
             return stream;
 
         } catch (MalformedURLException mue) {
-            mue.printStackTrace();
+            logger.error(mue);
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            logger.error(ioe);
         }
         return new byte[0];
     }
 
     public static Map<String, Long> count(byte[] stream) {
         Map<String, Long> result = new HashMap<>();
-
         try {
-            InputStream inputStream = new ByteArrayInputStream(stream);
-            ;
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(stream)));
             while (reader.ready()) {
                 String line = reader.readLine();
                 List<String> words = getWords(line);
@@ -73,12 +70,11 @@ public class Worker {
                     result.put(key, result.getOrDefault(key, (long)0) + 1);
                 }
             }
-            inputStream.close();
             reader.close();
         } catch (MalformedURLException mue) {
-            mue.printStackTrace();
+            logger.error(mue);
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            logger.error(ioe);
         }
         return result;
     }
