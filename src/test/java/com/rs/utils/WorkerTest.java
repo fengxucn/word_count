@@ -44,7 +44,6 @@ public class WorkerTest {
     @Test
     public void countTest_Success(){
         Map<String, Long> result = Worker.count( new ByteArrayInputStream(Worker.download("http://www.gutenberg.org/files/2600/2600-0.txt", 0, 524287)));
-        assertEquals(result.size(), 7347);
         assertEquals(result.get("princess"), 185, 0.0);
     }
 

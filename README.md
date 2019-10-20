@@ -27,14 +27,14 @@ So, the solution is:
 - How would you re-architect your program if the input size is not ~ 3MB, but 1 TB
   - The `Producer` and `Consumer` solution can handle any size of data, because `Producer` just load part of data each time.
 - Stop Words
-  - Stop words like `the`, `is`, `are` they have high frequency for all text files, so there is no meaningful to count them , we can close this function by set [remove_stop_words](#Configuration) = false and add some stop words to [stop_words](#Configuration)
+  - Stop words like `the`, `is`, `are` they have high frequency for all text files, so there is no meaningful to count them , we can close this function by set [remove_stop_words](#Configuration) = false or add some more stop words to [stop_words](#Configuration)
 - Some Concerns
   - The remote server not support `urlConn.setRequestProperty("Range", "bytes=" + start + "-" + end)`
     - The `Producer` can download all the data to the local disk, assume the disk can hold all the data, if not, we can use `HDFS`
   - How about some `executor` crashed
     - In order to make the system more reliable, we need add some `Exception` handle logic, when some `executor` down, we need send the data to other `executor` to run.
   - How about the count result is too big to stay in memory
-    - We can write the result for each task to disk, and load them to `Reduce` process  
+    - We can write the result for each task to the disk, and load them to `Reduce` process  
   
 
 ![System Design](https://github.com/fengxucn/rs_homework/blob/master/docs/SystemDesign.png)

@@ -74,6 +74,7 @@ public class Utils {
             }
         }
 
+        logger.info("reducing now...");
         Map<String, Long> count = new HashMap<>();
         for (List<Map.Entry<String, Long>> list : map_result) {
             for (Map.Entry<String, Long> kv : list) {
@@ -115,6 +116,7 @@ public class Utils {
 
 
     public static void map() {
+        logger.info("mapping now...");
         DataPool pool = new DataPool();
 
         Locks locks = new Locks();
