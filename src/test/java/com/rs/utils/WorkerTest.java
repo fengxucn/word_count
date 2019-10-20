@@ -2,6 +2,7 @@ package com.rs.utils;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.util.Map;
 import java.util.Random;
 
@@ -42,14 +43,14 @@ public class WorkerTest {
 
     @Test
     public void countTest_Success(){
-        Map<String, Long> result = Worker.count( Worker.download("http://www.gutenberg.org/files/2600/2600-0.txt", 0, 524287));
+        Map<String, Long> result = Worker.count( new ByteArrayInputStream(Worker.download("http://www.gutenberg.org/files/2600/2600-0.txt", 0, 524287)));
         assertEquals(result.size(), 7347);
         assertEquals(result.get("princess"), 185, 0.0);
     }
 
     @Test
     public void countTest_Empty(){
-        Map<String, Long> result = Worker.count(new byte[0]);
+        Map<String, Long> result = Worker.count(new ByteArrayInputStream(new byte[0]));
         assertEquals(result.size(), 0);
     }
 }

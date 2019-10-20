@@ -57,10 +57,10 @@ public class Worker {
         return new byte[0];
     }
 
-    public static Map<String, Long> count(byte[] stream) {
+    public static Map<String, Long> count(ByteArrayInputStream stream) {
         Map<String, Long> result = new HashMap<>();
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(stream)));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
             while (reader.ready()) {
                 String line = reader.readLine();
                 List<String> words = getWords(line);

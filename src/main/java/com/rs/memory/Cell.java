@@ -1,5 +1,6 @@
 package com.rs.memory;
 
+import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,14 +24,14 @@ public class Cell {
         return index >= length;
     }
 
-    public byte[] read() {
+    public ByteArrayInputStream read() {
         int start = 0;
 
         if (index > length)
-            return new byte[0];
+            return new ByteArrayInputStream(new byte[0]);
         start = index;
         index += step;
 
-        return Arrays.copyOfRange(data, start, start + step);
+        return new ByteArrayInputStream(data, start , step);
     }
 }

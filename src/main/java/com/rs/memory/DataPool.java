@@ -1,5 +1,6 @@
 package com.rs.memory;
 
+import java.io.ByteArrayInputStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,12 +25,12 @@ public class DataPool {
         return  pool.isEmpty();
     }
 
-    public byte[] read(){
+    public ByteArrayInputStream read(){
         if(isEmpty())
-            return new byte[0];
+            return new ByteArrayInputStream(new byte[0]);
 
         Cell cell = pool.get(0);
-        byte[] data = cell.read();
+        ByteArrayInputStream data = cell.read();
         if(cell.isEmpty()){
             pool.remove(0);
         }

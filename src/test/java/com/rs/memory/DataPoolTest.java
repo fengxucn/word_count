@@ -48,6 +48,6 @@ public class DataPoolTest {
         pool.read();
         assertEquals(pool.isEmpty(), true);
 
-        assertEquals(pool.read().length, 0);
+        assertEquals(pool.read().available(), 0);
     }
 }

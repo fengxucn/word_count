@@ -3,6 +3,7 @@ package com.rs.utils;
 import com.rs.memory.DataPool;
 import org.apache.log4j.Logger;
 
+import java.io.ByteArrayInputStream;
 import java.util.*;
 
 import static com.rs.utils.Configs.FINAL_RESULT;
@@ -20,7 +21,7 @@ public class Consumer extends Thread {
     public void run() {
         Map<String, Long> result = new HashMap<>();
         while (true) {
-            byte[] data;
+            ByteArrayInputStream data;
             synchronized (pool) {
                 while (pool.isEmpty() && !Producer.done.get()) {
                     try {
