@@ -29,7 +29,7 @@ So, the solution is:
 - Stop Words
   - Stop words like `the`, `is`, `are` they have high frequency for all text files, so there is no meaningful to count them , we can close this function by set [remove_stop_words](#Configuration) = false or add some more stop words to [stop_words](#Configuration)
 - Some Concerns
-  - Because we split the text file by size, so, some word will split to two words, so, the final result will has minor mistake, the `error rate` will be: `error rate = (Total size / max_size_each_task) / Total words`
+  - Because we split the text file by size, so, some word will split to two words, so, the final result will has minor mistake, the `error rate` will be: `error rate <= 3 * (Total size / max_size_each_task) / Total words`
   - The remote server not support `urlConn.setRequestProperty("Range", "bytes=" + start + "-" + end)`
     - The `Producer` can download all the data to the local disk, assume the disk can hold all the data, if not, we can use `HDFS`
   - How about some `executor` crashed
