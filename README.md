@@ -8,26 +8,34 @@ Create a multi-threaded application that will read a text file and does a word c
 - [Configuration](#Configuration)
 ## System Design
 Assume:
-- The text file was too big to load to memory
-- The word count process was more faster than data download process
+- The text file is too big to load to memory
+- The word count process is faster than data downloading process
 
 So, the solution is:
-- Use `Map` `Reduce` logic to do word count, and use `Producer` and `Consumer` to do memory manage
-- For `Producer`, it just download part of data to `data pool` each time, once the `data pool` is full, the `Producer` will jump in `await` status until there has data removed from `data pool`
+- Use `Map` `Reduce` logic to do word count, and use `Producer` and `Consumer` to do memory management
+- For `Producer`, it just download part of data to `data pool` each time, once the `data pool` is full, the `Producer` will jump in `await` status until there is data removed out `data pool`
   - Assume each executor can process `m` size of data, we can update [max_size_each_task](#Configuration) in Configuration 
   - And assume we have `n` executors, we can update [executor_number](#Configuration) in Configuration
   - So, we can set `urlConn.setRequestProperty("Range", "bytes=" + start + "-" + end)` and use `urlConn.getInputStream()` to download `m * n` size of data each time
   - Assume the memory limit is `T`, so, the `data pool`'s max size will be `T / (m * n)`
-- For `Consumer`, there has `n` executors run at same time, they consume data from `data pool`, the `data pool` will use `new ByteArrayInputStream(data, offset , max_size_each_task)` to generate stream for each executor, each executor has different `offset` and share same byte array `data`, so, there has no data copy.
+- For `Consumer`, there is `n` executors running at the same time, they consume data from `data pool`, the `data pool` will use `new ByteArrayInputStream(data, offset , max_size_each_task)` to generate streams for each executor, each executor has different `offset` and shares same byte array `data`, so, there is no data copy.
 
 **Q&A:**
 - How the execution time could be improved and other scaling techniques
-  - The bottleneck for above solution is `Producer`, we can use cluster to speed up
+  - The bottleneck for the solution above is `Producer`, we can use cluster to speed up
   - we also can use `Spark` to improve the performance
 - How would you re-architect your program if the input size is not ~ 3MB, but 1 TB
   - The `Producer` and `Consumer` solution can handle any size of data, because `Producer` just load part of data each time.
 - Stop Words
-  - Stop words like `the`, `is`, `are` they has high frequency for all text files, we can close it by set [remove_stop_words](#Configuration) = false and add some stop words to [stop_words](#Configuration)
+  - Stop words like `the`, `is`, `are` they have high frequency for all text files, so there is no meaningful to count them , we can close this function by set [remove_stop_words](#Configuration) = false and add some stop words to [stop_words](#Configuration)
+- Some Concerns
+  - The remote server not support `urlConn.setRequestProperty("Range", "bytes=" + start + "-" + end)`
+    - The `Producer` can download all the data to the local disk, assume the disk can hold all the data, if not, we can use `HDFS`
+  - How about some `executor` crashed
+    - In order to make the system more reliable, we need add some `Exception` handle logic, when some `executor` down, we need send the data to other `executor` to run.
+  - How about the count result is too big to stay in memory
+    - We can write the result for each task to disk, and load them to `Reduce` process  
+  
 
 ![System Design](https://github.com/fengxucn/rs_homework/blob/master/docs/SystemDesign.png)
 ## How to run
@@ -45,7 +53,7 @@ You can find the config file at
 `./config/config.properties`
 
 ```
- #the max size of text file can load to each task, default is 64k, can set to 1m or else
+ #the max size of text file can be loaded to each task, default is 64k, can set to 1m or else
  max_size_each_task = 64K
  
  remove_stop_words = true

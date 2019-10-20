@@ -14,7 +14,9 @@ import java.util.regex.Pattern;
 
 import static com.rs.utils.Configs.*;
 import static com.rs.utils.Worker.dirInit;
-
+/**
+ * created by Feng Xu on Oct. 19th
+ */
 public class Utils {
     static Logger logger = Logger.getLogger(Utils.class);
 

@@ -11,7 +11,9 @@ import org.apache.commons.io.IOUtils;
 
 import org.apache.log4j.Logger;
 import static com.rs.utils.Utils.getWords;
-
+/**
+ * created by Feng Xu on Oct. 19th
+ */
 public class Worker {
     static Logger logger = Logger.getLogger(Worker.class);
     public static void dirInit(String dir) {

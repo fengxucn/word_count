@@ -7,12 +7,12 @@ import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.rs.utils.Locks.*;
-
 import static com.rs.utils.Configs.FINAL_RESULT;
 import static com.rs.utils.Utils.*;
 import static com.rs.utils.Worker.count;
-
+/**
+ * created by Feng Xu on Oct. 19th
+ */
 public class Consumer extends Thread {
     static Logger logger = Logger.getLogger(Consumer.class);
     DataPool pool;

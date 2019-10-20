@@ -6,6 +6,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.rs.utils.Configs.MAX_SIZE_EACH_TASK;
 
+/**
+ * created by Feng Xu on Oct. 19th
+ */
+
 public class Cell {
 
     private byte[] data;

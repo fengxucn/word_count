@@ -13,7 +13,9 @@ import static com.rs.utils.Configs.MAX_SIZE_EACH_TASK;
 import static com.rs.utils.Configs.getExecutorNumber;
 import static com.rs.utils.Utils.*;
 import static com.rs.utils.Worker.download;
-
+/**
+ * created by Feng Xu on Oct. 19th
+ */
 public class Producer extends Thread {
     static Logger logger = Logger.getLogger(Producer.class);
 

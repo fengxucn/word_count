@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+/**
+ * created by Feng Xu on Oct. 19th
+ */
+
 public class Configs {
     public static final String FINAL_RESULT = "./result/";
 
