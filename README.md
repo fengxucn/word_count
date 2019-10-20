@@ -6,7 +6,7 @@ Create a multi-threaded application that will read a text file and does a word c
 - [System Design](#System-Design)
 - [How to run](#How-to-run)
 - [Configuration](#Configuration)
-# System Design
+## System Design
 Assume:
 - The text file was too big to load to memory
 - The word count process was more faster than data download process
@@ -20,8 +20,17 @@ So, the solution is:
   - Assume the memory limit is `T`, so, the `data pool`'s max size will be `T / (m * n)`
 - For `Consumer`, there has `n` executors run at same time, they consume data from `data pool`, the `data pool` will use `new ByteArrayInputStream(data, offset , max_size_each_task)` to generate stream for each executor, each executor has different `offset` and share same byte array `data`, so, there has no data copy.
 
+**Q&A:**
+- How the execution time could be improved and other scaling techniques
+  - The bottleneck for above solution is `Producer`, we can use cluster to speed up
+  - we also can use `Spark` to improve the performance
+- How would you re-architect your program if the input size is not ~ 3MB, but 1 TB
+  - The `Producer` and `Consumer` solution can handle any size of data, because `Producer` just load part of data each time.
+- Stop Words
+  - Stop words like `the`, `is`, `are` they has high frequency for all text files, we can close it by set [remove_stop_words](#Configuration) = false and add some stop words to [stop_words](#Configuration)
+
 ![System Design](https://github.com/fengxucn/rs_homework/blob/master/docs/SystemDesign.png)
-# How to run
+## How to run
 Download `word_count` to you local and run
 
 `./bin/run.sh`
@@ -30,7 +39,7 @@ you wll find all the result at
 
 `./result/`
 
-# Configuration
+## Configuration
 You can find the config file at
 
 `./config/config.properties`
@@ -39,7 +48,7 @@ You can find the config file at
  #the max size of text file can load to each task, default is 64k, can set to 1m or else
  max_size_each_task = 64K
  
- #remove_stop_words = true
+ remove_stop_words = true
  stop_words = a,as,at,the,of,be,been,being,by,can,cant,did,didnt,do,does,doesnt,doing,dont,done,eg,et,\
               etc,ex,for,and,to,in,is,that,it,her,or,he,his,not,she,was,but,on,with,has,him,had,we
  
