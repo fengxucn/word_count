@@ -15,18 +15,18 @@ You can find the config file at
 `./config/config.properties`
 
 ```
-the max size of text file can load to each task, default is 64k, can set to 1m or else
+ #the max size of text file can load to each task, default is 64k, can set to 1m or else
  max_size_each_task = 64K
  
- escape_stop_words = true
+ #escape_stop_words = true
  stop_words = a,as,at,the,of,be,been,being,by,can,cant,did,didnt,do,does,doesnt,doing,dont,done,eg,et,\
               etc,ex,for,and,to,in,is,that,it,her,or,he,his,not,she,was,but,on,with,has,him,had,we
  
- comma separate
+ #comma separate
  urls = http://www.gutenberg.org/files/2600/2600-0.txt
  
  topN = 5
  
- can support max 10 executors
+ #can support max 10 executors
  executor_number = 8
 ```
