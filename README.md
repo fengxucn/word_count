@@ -3,7 +3,7 @@ Create a multi-threaded application that will read a text file and does a word c
 # System Design
 If you want to embed images, this is how you do it:
 
-![System Design](https://github.com/fengxucn/rs_homework/blob/master/docs/Design.docx)
+![System Design](https://github.com/fengxucn/rs_homework/blob/master/docs/SystemDesign.png)
 # How to run
 Download `word_count` to you local and run
 
