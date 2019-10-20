@@ -115,14 +115,15 @@ public class Utils {
     public static void map() {
         DataPool pool = new DataPool();
 
-        Producer producer = new Producer(getUrls(), pool);
+        Locks locks = new Locks();
+        Producer producer = new Producer(getUrls(), pool, locks);
         logger.info("Start Producer: " + producer.getName());
         producer.start();
 
         int executors = getExecutorNumber();
 
         for (int i = 0; i < executors; i++) {
-            Consumer consumer = new Consumer(pool);
+            Consumer consumer = new Consumer(pool, locks);
             logger.info("Start Consumer: " + consumer.getName());
             consumer.start();
         }

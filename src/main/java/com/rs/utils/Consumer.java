@@ -5,6 +5,9 @@ import org.apache.log4j.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import static com.rs.utils.Locks.*;
 
 import static com.rs.utils.Configs.FINAL_RESULT;
 import static com.rs.utils.Utils.*;
@@ -13,19 +16,22 @@ import static com.rs.utils.Worker.count;
 public class Consumer extends Thread {
     static Logger logger = Logger.getLogger(Consumer.class);
     DataPool pool;
+    Locks locks;
 
-    public Consumer(DataPool pool) {
+    public Consumer(DataPool pool, Locks locks) {
         this.pool = pool;
+        this.locks = locks;
     }
 
     public void run() {
         Map<String, Long> result = new HashMap<>();
         while (true) {
             ByteArrayInputStream data;
-            synchronized (pool) {
+            locks.readLock.lock();
+            try {
                 while (pool.isEmpty() && !Producer.done.get()) {
                     try {
-                        pool.wait(new Random().nextInt(100));
+                        locks.hasData.await(new Random().nextInt(100), TimeUnit.MILLISECONDS);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -34,7 +40,10 @@ public class Consumer extends Thread {
                     break;
                 }
                 data = pool.read();
-                pool.notifyAll();
+                locks.needData.signalAll();
+            }
+            finally {
+                locks.readLock.unlock();
             }
             Map<String, Long> tmp = count(data);
 
