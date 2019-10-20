@@ -48,7 +48,7 @@ public class Configs {
     }
 
     public static boolean needEscapeStopWords(){
-        return Boolean.parseBoolean(prop.getProperty("escape_stop_words", "true"));
+        return Boolean.parseBoolean(prop.getProperty("remove_stop_words", "true"));
     }
 
     public static Set<String> getUrls(){
