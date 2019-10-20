@@ -1,5 +1,11 @@
 # Rackspace Word Count
 Create a multi-threaded application that will read a text file and does a word count
+
+**Table of Contents** 
+
+- [System Design](#System Design)
+- [How to run](#How to run)
+- [Configuration](#Configuration)
 # System Design
 If you want to embed images, this is how you do it:
 
