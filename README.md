@@ -3,8 +3,8 @@ Create a multi-threaded application that will read a text file and does a word c
 
 **Table of Contents** 
 
-- [System Design](#System Design)
-- [How to run](#How to run)
+- [System Design](#SystemDesign)
+- [How to run](#Howtorun)
 - [Configuration](#Configuration)
 # System Design
 If you want to embed images, this is how you do it:
