@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class DataPool {
-    private List<Cell> pool = new LinkedList<Cell>();
+    private List<Cell> pool = new LinkedList<>();
 
     private final int size_limit = 3;
 

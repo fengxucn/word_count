@@ -7,20 +7,20 @@ import static com.rs.utils.Configs.MAX_SIZE_EACH_TASK;
 
 public class Cell {
 
-    byte[] data;
-    int step;
-    int length;
+    private byte[] data;
+    private int step;
+    private int length;
 
     public Cell(byte[] data) {
         this.data = data;
-        this.step = MAX_SIZE_EACH_TASK();;
+        this.step = MAX_SIZE_EACH_TASK();
         this.length = data.length;
     }
 
     int index = 0;
 
     public boolean isEmpty() {
-        return index > length;
+        return index >= length;
     }
 
     public byte[] read() {
