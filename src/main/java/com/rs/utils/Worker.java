@@ -46,7 +46,7 @@ public class Worker {
             if (responseCode == HttpURLConnection.HTTP_PARTIAL) {
                 stream = IOUtils.toByteArray(urlConnection);
             } else {
-                logger.error("No file to download. Server replied HTTP code: " + responseCode);
+                logger.error(path + " not support range download. Server replied HTTP code: " + responseCode);
             }
             urlConnection.disconnect();
             return stream;

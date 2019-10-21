@@ -36,6 +36,7 @@ public class Producer extends Thread {
 
         for(String url : urls){
             int total_size = getTotalSize(url);
+            logger.info("there is " + total_size +"Bytes for:" + url);
             long begin = 0;
             do {
                 long end = begin + step;
