@@ -1,4 +1,4 @@
-# Rackspace Word Count
+# Word Count
 Create a multi-threaded application that will read a text file and does a word count
 
 **Table of Contents** 
